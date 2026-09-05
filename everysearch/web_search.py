@@ -28,7 +28,6 @@ PLATFORM_URLS = {
     "facebook": "https://www.facebook.com/{username}",
 }
 
-# Platforms where a 200 status is a strong signal vs. a weak one
 RELIABLE_STATUS_CHECK = {
     "instagram": False,
     "facebook": False,
@@ -41,7 +40,7 @@ class SocialResult:
     platform: str
     username: str
     url: str
-    exists: Optional[bool]   # True/False if confident, None if unknown/error
+    exists: Optional[bool]
     reliable: bool
 
 
@@ -50,11 +49,6 @@ def check_username(
     platforms: Optional[List[str]] = None,
     timeout: int = 6,
 ) -> List[SocialResult]:
-    """
-    Checks `username` against each platform's public profile URL.
-    Returns a list of SocialResult, one per platform checked.
-    Never raises — network errors are captured as exists=None.
-    """
     platforms = platforms or list(PLATFORM_URLS.keys())
     results = []
 
@@ -74,7 +68,7 @@ def check_username(
             elif resp.status_code == 200:
                 exists = True
             else:
-                exists = None  # ambiguous (rate-limited, blocked, etc.)
+                exists = None
         except requests.RequestException:
             exists = None
 
